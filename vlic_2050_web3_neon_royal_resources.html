@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VLIC 2050 – Digital Language Architecture for Vietnamese NLP/LLM Infrastructure</title>
+<meta name="description" content="VLIC 2050 – Vietnamese Language Infrastructure Core: hạ tầng số tiếng Việt, CVNSS4.0 IR, BilaKey, NLP/LLM, ASR/TTS, Web3 provenance, mã nguồn mở CC BY 4.0." />
+<style>
+:root{
+  --bg:#07070c;
+  --bg2:#10101a;
+  --ink:#f7efd9;
+  --muted:#b6ad96;
+  --line:rgba(237,201,103,.22);
+  --gold:#edc967;
+  --gold2:#ffdf8a;
+  --red:#9f1d2b;
+  --jade:#19d3a2;
+  --cyan:#18e5ff;
+  --violet:#b761ff;
+  --paper:#fff8e7;
+  --darkcard:rgba(16,16,26,.76);
+  --glass:rgba(255,255,255,.07);
+  --shadow:0 30px 90px rgba(0,0,0,.45);
+  --radius:28px;
+  --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,"Noto Sans",sans-serif;
+  --serif:Georgia,"Times New Roman","Noto Serif",serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 8% -8%, rgba(183,97,255,.22), transparent 31%),
+    radial-gradient(circle at 92% 1%, rgba(24,229,255,.18), transparent 24%),
+    radial-gradient(circle at 20% 80%, rgba(237,201,103,.11), transparent 30%),
+    linear-gradient(135deg,#060609 0%,#101018 45%,#16080b 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background-image:
+    linear-gradient(rgba(237,201,103,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(237,201,103,.035) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.9),rgba(0,0,0,.25));
+}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+.container{max-width:1480px;margin:0 auto;padding:0 28px}
+.shell{display:grid;grid-template-columns:306px minmax(0,1fr);min-height:100vh}
+.sidebar{
+  position:sticky;top:0;height:100vh;overflow:auto;padding:24px 20px;
+  border-right:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(9,9,16,.88),rgba(19,9,12,.9));
+  backdrop-filter:blur(22px);z-index:30;
+}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.logo{
+  width:58px;height:58px;border-radius:21px;display:grid;place-items:center;
+  color:#091011;font-weight:1000;font-size:28px;letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--gold2),#f4b647 35%,var(--jade));
+  box-shadow:0 0 34px rgba(237,201,103,.35), inset 0 1px 0 rgba(255,255,255,.7);
+  position:relative;
+}
+.logo::after{content:"文";position:absolute;right:-8px;bottom:-10px;color:rgba(255,248,231,.75);font-family:var(--serif);font-size:19px;text-shadow:0 0 12px var(--cyan)}
+.brand h1{font-size:21px;line-height:1;letter-spacing:.4px}
+.brand small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+.search{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);padding:12px 14px;border-radius:999px;outline:none;margin:12px 0 18px}
+.search:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(24,229,255,.12)}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);margin:18px 0 8px;font-weight:900}
+.nav{display:flex;flex-direction:column;gap:7px}
+.nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid transparent;border-radius:16px;color:#e9dfc2;font-size:13px;font-weight:750;transition:.22s}
+.nav a:hover,.nav a.active{border-color:var(--line);background:rgba(237,201,103,.1);box-shadow:0 0 18px rgba(24,229,255,.08);transform:translateX(2px)}
+.nav .dot{width:8px;height:8px;border-radius:99px;background:linear-gradient(135deg,var(--cyan),var(--gold));box-shadow:0 0 16px var(--cyan);flex:0 0 8px}
+.side-card{margin-top:22px;border:1px solid var(--line);border-radius:24px;padding:16px;background:rgba(255,255,255,.055);box-shadow:var(--shadow)}
+.side-card b{color:var(--gold2)}
+.side-card p{color:var(--muted);font-size:12.5px;line-height:1.6;margin-top:8px}
+.main{min-width:0}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 28px;border-bottom:1px solid var(--line);background:rgba(7,7,12,.74);backdrop-filter:blur(20px)}
+.crumb{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:1px solid var(--line);border-radius:999px;padding:10px 15px;background:rgba(255,255,255,.06);color:var(--ink);font-weight:850;cursor:pointer;display:inline-flex;gap:8px;align-items:center;transition:.22s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 0 28px rgba(24,229,255,.16)}
+.btn.primary{border:none;background:linear-gradient(135deg,var(--gold2),#d7962c);color:#120d08;box-shadow:0 14px 30px rgba(237,201,103,.18)}
+.hero{position:relative;padding:70px 0 52px;overflow:hidden}
+.hero::after{content:"語 越 文";position:absolute;right:2vw;top:24px;font-family:var(--serif);font-size:clamp(68px,12vw,180px);line-height:.9;color:rgba(237,201,103,.08);writing-mode:vertical-rl;pointer-events:none;text-shadow:0 0 30px rgba(183,97,255,.08)}
+.badge{display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(237,201,103,.35);background:rgba(237,201,103,.1);color:var(--gold2);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:.8px;margin-bottom:20px}
+.hero h2{font-size:clamp(42px,7vw,100px);line-height:.94;letter-spacing:-3px;max-width:1120px;margin-bottom:20px}
+.gradient{background:linear-gradient(95deg,var(--gold2) 0%,var(--cyan) 36%,var(--violet) 70%,#ffe6b2 100%);-webkit-background-clip:text;color:transparent;text-shadow:none}
+.lead{font-size:clamp(17px,2vw,22px);line-height:1.72;color:#d9cfb9;max-width:1050px;margin-bottom:28px}
+.hero-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:22px;margin-top:28px}
+.card{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.045));box-shadow:var(--shadow);padding:24px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(24,229,255,.11),transparent 36%);pointer-events:none}
+.card>*{position:relative}
+.card h3{font-size:22px;margin-bottom:10px;color:#fff1c8}
+.card p,.card li{color:#d6cbb2;line-height:1.65}
+.card ul{padding-left:18px;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.stat{border:1px solid rgba(237,201,103,.18);background:rgba(0,0,0,.22);border-radius:19px;padding:15px;min-height:104px}
+.stat b{display:block;font-size:28px;color:var(--gold2)}
+.stat span{display:block;color:var(--muted);font-size:12px;margin-top:4px;line-height:1.35}
+.section{padding:58px 0;border-top:1px solid rgba(237,201,103,.14)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:24px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.6px;color:var(--cyan);font-weight:1000;margin-bottom:8px}
+h2{font-size:clamp(30px,4.5vw,58px);line-height:1.02;letter-spacing:-1.8px}
+.subtitle{max-width:940px;color:var(--muted);line-height:1.7;margin-top:12px;font-size:15.5px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.tile{border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.055);padding:20px;box-shadow:0 14px 40px rgba(0,0,0,.18);transition:.22s}
+.tile:hover{transform:translateY(-3px);border-color:rgba(24,229,255,.35);box-shadow:0 24px 60px rgba(24,229,255,.08)}
+.tile .k{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(24,229,255,.09);color:var(--cyan);font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
+.tile h3{font-size:19px;margin-bottom:8px;color:#fff3cf}
+.tile p{font-size:14px;color:#d4cab3;line-height:1.6}
+.arch{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.layer{display:grid;grid-template-columns:58px 1fr;gap:15px;border:1px solid var(--line);border-radius:22px;padding:17px;background:linear-gradient(90deg,rgba(237,201,103,.08),rgba(255,255,255,.035));margin-bottom:12px}
+.num{width:52px;height:52px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold2),var(--red));color:#16090b;font-weight:1000;box-shadow:0 0 22px rgba(237,201,103,.25)}
+.layer h3{font-size:17px;margin-bottom:4px;color:#fff0c8}
+.layer p{font-size:13.5px;color:var(--muted);line-height:1.55}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:26px;background:rgba(255,255,255,.055);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:1000px}
+th,td{border-bottom:1px solid rgba(237,201,103,.15);padding:15px;text-align:left;vertical-align:top;font-size:14px;line-height:1.5}
+th{background:rgba(237,201,103,.13);color:#fff1c8;text-transform:uppercase;font-size:12px;letter-spacing:.8px}
+td{color:#d8ceb6}
+tr:hover td{background:rgba(24,229,255,.035)}
+.code{font-family:var(--mono);font-size:12.5px;color:#93f7ff;background:rgba(0,0,0,.32);border:1px solid rgba(24,229,255,.16);border-radius:12px;padding:3px 7px;display:inline-block;margin:2px 2px 2px 0}
+.tagbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 22px}
+.filter{border:1px solid var(--line);background:rgba(255,255,255,.055);color:#eadfbf;border-radius:999px;padding:9px 13px;cursor:pointer;font-weight:850;font-size:13px}
+.filter.active{background:linear-gradient(135deg,var(--gold2),var(--jade));color:#0d1110;border:none}
+.grammar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:15px}
+.gcard{border:1px solid rgba(237,201,103,.18);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035));padding:17px;min-height:204px}
+.gcard small{color:var(--cyan);font-weight:1000;text-transform:uppercase;letter-spacing:.6px}
+.gcard h3{font-size:17px;margin:9px 0 8px;color:#fff1c8}
+.gcard p{font-size:13.5px;color:#cfc4ab;line-height:1.55}
+.roadmap{position:relative;padding-left:20px}
+.roadmap::before{content:"";position:absolute;left:26px;top:0;bottom:0;width:2px;background:linear-gradient(var(--cyan),var(--gold),var(--violet))}
+.milestone{position:relative;margin-bottom:16px;padding-left:58px}
+.milestone::before{content:"";position:absolute;left:0;top:12px;width:54px;height:2px;background:rgba(237,201,103,.4)}
+.milestone .year{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:7px 12px;background:rgba(0,0,0,.35);color:var(--gold2);font-weight:1000;margin-bottom:7px}
+.milestone .box{border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.055);padding:16px}
+.milestone h3{font-size:18px;color:#fff0c8;margin-bottom:5px}.milestone p{color:var(--muted);line-height:1.6;font-size:14px}
+.footer{margin-top:50px;border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(10,10,17,.4),rgba(0,0,0,.65));padding:42px 0 58px}
+.footer-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
+.contact-card{border:1px solid var(--line);border-radius:28px;padding:24px;background:rgba(255,255,255,.06)}
+.contact-card h3{font-size:24px;margin-bottom:10px;color:#fff3cf}.contact-card p{color:#d1c6ae;line-height:1.7}.contact-card a{color:var(--cyan);font-weight:900}
+.license{font-size:13px;color:var(--muted);line-height:1.7;margin-top:15px}
+.floating{position:fixed;right:18px;bottom:18px;z-index:40;display:flex;flex-direction:column;gap:10px}.floatbtn{width:48px;height:48px;border-radius:18px;border:1px solid var(--line);background:rgba(10,10,16,.74);color:var(--gold2);display:grid;place-items:center;box-shadow:var(--shadow);cursor:pointer}
+
+.resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+.resource-card{border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));padding:18px;box-shadow:0 16px 46px rgba(0,0,0,.22);position:relative;overflow:hidden}
+.resource-card::before{content:"";position:absolute;inset:-40% -20% auto auto;width:150px;height:150px;border-radius:999px;background:radial-gradient(circle,rgba(24,229,255,.18),transparent 70%);pointer-events:none}
+.resource-card h3{font-size:17px;color:#fff2c9;margin-bottom:9px;position:relative}
+.resource-card p{font-size:13px;line-height:1.55;color:#d5cab4;margin-bottom:10px;position:relative}
+.resource-links{display:flex;flex-direction:column;gap:7px;position:relative}
+.resource-links a{display:flex;justify-content:space-between;gap:12px;border:1px solid rgba(237,201,103,.15);border-radius:14px;padding:9px 10px;background:rgba(0,0,0,.16);font-size:13px;color:#f6e8bd;transition:.18s}
+.resource-links a:hover{border-color:rgba(24,229,255,.5);background:rgba(24,229,255,.08);transform:translateX(2px)}
+.resource-links a span:last-child{color:var(--cyan);font-family:var(--mono);font-size:11px;white-space:nowrap}
+.resource-matrix{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:0;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:rgba(255,255,255,.045);margin-top:18px}
+.resource-matrix div{padding:13px 15px;border-bottom:1px solid rgba(237,201,103,.14);border-right:1px solid rgba(237,201,103,.14);font-size:13px;line-height:1.5;color:#e2d4b8}
+.resource-matrix div:nth-child(3n){border-right:none}
+.resource-matrix .head{background:rgba(237,201,103,.12);font-weight:900;color:#fff3cf;text-transform:uppercase;letter-spacing:.4px}
+.resource-note{margin-top:18px;border:1px solid rgba(24,229,255,.22);border-radius:24px;padding:18px;background:linear-gradient(135deg,rgba(24,229,255,.08),rgba(237,201,103,.06));color:#d8ccb0;line-height:1.65}
+@media(max-width:1120px){.resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.resource-matrix{grid-template-columns:1fr}.resource-matrix div{border-right:none}.resource-matrix .head:not(:first-child){display:none}}
+@media(max-width:680px){.resource-grid{grid-template-columns:1fr}.resource-links a{flex-direction:column}.resource-links a span:last-child{white-space:normal}}
+
+@media(max-width:1120px){.shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.nav{display:grid;grid-template-columns:repeat(2,1fr)}.hero-grid,.arch,.grid-2,.footer-grid{grid-template-columns:1fr}.grid-3,.grid-4{grid-template-columns:repeat(2,1fr)}.topbar{position:relative}.hero::after{opacity:.45}}
+@media(max-width:680px){.container{padding:0 16px}.topbar{padding:12px 16px;align-items:flex-start;flex-direction:column}.nav{grid-template-columns:1fr}.hero{padding-top:42px}.hero h2{letter-spacing:-1.4px}.stats,.grid-3,.grid-4{grid-template-columns:1fr}.card,.tile{padding:18px}.layer{grid-template-columns:1fr}.num{width:46px;height:46px}.sidebar{padding:18px 14px}.footer-grid{gap:14px}.actions{width:100%;justify-content:flex-start}.btn{font-size:13px}.floating{display:none}}
+@media print{body{background:#fff;color:#111}.sidebar,.topbar,.floating{display:none}.shell{display:block}.card,.tile,.table-wrap,.contact-card,.gcard,.layer{box-shadow:none;background:#fff;color:#111;border-color:#ccc}.container{max-width:100%;}.section{page-break-inside:avoid}.gradient{color:#111;background:none}.lead,.subtitle,.tile p,.card p,.card li,td,.gcard p{color:#222}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">V</div>
+      <div>
+        <h1>VLIC 2050</h1>
+        <small>Digital Language Architecture</small>
+      </div>
+    </div>
+    <input class="search" id="search" placeholder="Tìm: NLP, LLM, CVNSS, ASR..." />
+    <div class="nav-title">Tags chuyên nghiệp</div>
+    <nav class="nav" id="nav">
+      <a href="#home"><span class="dot"></span>Trang chủ</a>
+      <a href="#vision"><span class="dot"></span>Tầm nhìn Web3</a>
+      <a href="#framework"><span class="dot"></span>Khung kiến trúc số</a>
+      <a href="#core"><span class="dot"></span>Kiến trúc lõi VLIC</a>
+      <a href="#cvnss"><span class="dot"></span>CVNSS4.0 & BilaKey</a>
+      <a href="#grammar"><span class="dot"></span>Ngữ pháp máy hiểu</a>
+      <a href="#llm"><span class="dot"></span>LLM 11 bước</a>
+      <a href="#ethnic"><span class="dot"></span>54 dân tộc</a>
+      <a href="#apps"><span class="dot"></span>Ứng dụng chiến lược</a>
+      <a href="#web3"><span class="dot"></span>Web3 & provenance</a>
+      <a href="#roadmap"><span class="dot"></span>Roadmap IPO 2050</a>
+      <a href="#opensource"><span class="dot"></span>Mã nguồn mở</a>
+      <a href="#resources"><span class="dot"></span>Tài nguyên</a>
+      <a href="#contact"><span class="dot"></span>Liên hệ</a>
+    </nav>
+    <div class="side-card">
+      <b>Open Protocol · Non-profit · CC BY 4.0</b>
+      <p>VLIC là hạ tầng mở cho tiếng Việt số: chuẩn hóa, nhập liệu, NLP, LLM, ASR/TTS, truy vết dữ liệu và công bố tri thức vì cộng đồng lập trình viên.</p>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="crumb">VLIC 2050 · Neon Royal Eastern Web3 Portal · Vietnamese NLP/LLM Infrastructure</div>
+      <div class="actions">
+        <a class="btn" href="#opensource">CC BY 4.0</a>
+        <a class="btn" href="mailto:chuvnsongsong@gmail.com">Email</a>
+        <a class="btn primary" href="#roadmap">IPO 2050 Vision</a>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero" id="home">
+        <div class="badge">王道 · Open Web3 Language Infrastructure · VLIC 2050</div>
+        <h2><span class="gradient">VLIC 2050</span><br/>Digital Language Architecture for Vietnamese NLP/LLM Infrastructure</h2>
+        <p class="lead">Một hạ tầng ngôn ngữ số cho tiếng Việt: kết hợp <b>Unicode NFC</b>, <b>CVNSS4.0 làm Intermediate Representation</b>, <b>BilaKey làm cổng nhập liệu</b>, <b>NLP/LLM/ASR/TTS/OCR/RAG</b> và <b>Web3 provenance</b> để xây nền tảng mở cho AI tiếng Việt, 54 dân tộc anh em và hệ sinh thái công nghệ đến năm 2050.</p>
+        <div class="hero-grid">
+          <div class="card">
+            <h3>Triết lý thiết kế</h3>
+            <p><b>Hoài cổ nhưng không cũ, Hán Nôm nhưng không đóng kín, Web3 nhưng không phô trương.</b> VLIC dùng mỹ học phương Đông, tinh thần hoàng gia và công nghệ lõi hiện đại để đặt tiếng Việt vào vị trí của một hạ tầng số quốc gia: có chuẩn, có API, có kiểm thử, có trace, có giấy phép mở.</p>
+            <div class="stats">
+              <div class="stat"><b>2050</b><span>mốc IPO-ready / public infrastructure accountability</span></div>
+              <div class="stat"><b>24</b><span>trục ngữ pháp tiếng Việt cho máy hiểu</span></div>
+              <div class="stat"><b>54</b><span>khung hỗ trợ ngôn ngữ dân tộc</span></div>
+              <div class="stat"><b>CC</b><span>Creative Commons BY 4.0</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Founder & Team</h3>
+            <p><b>Long Ngo</b><br/>Trưởng team <b>Bilacore</b>, Kỹ sư trưởng và Founder <b>BilaKey.com</b>, người theo đuổi đam mê sáng tạo với tiếng Việt.</p>
+            <p style="margin-top:12px"><span class="code">VLIC</span><span class="code">BilaKey</span><span class="code">CVNSS4.0 IR</span><span class="code">Open Source</span><span class="code">Non-profit</span></p>
+            <p style="margin-top:12px">Email chính thức: <a style="color:var(--cyan);font-weight:900" href="mailto:chuvnsongsong@gmail.com">chuvnsongsong@gmail.com</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="vision">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Tag · Tầm nhìn</div>
+            <h2>VLIC như “hệ điều hành ngôn ngữ” cho AI tiếng Việt</h2>
+            <p class="subtitle">VLIC không phải một app, không chỉ là bộ gõ, cũng không phải một mô hình LLM. VLIC là lớp hạ tầng để mọi app, mô hình, cơ sở dữ liệu, dịch vụ công, voicebot, chatbot, tài liệu số và Web3 protocol xử lý tiếng Việt đúng, có kiểm chứng và có khả năng mở rộng.</p>
+          </div>
+        </div>
+        <div class="grid-4">
+          <div class="tile"><span class="k">AI First</span><h3>AI hiểu tiếng Việt từ gốc</h3><p>Chuẩn hóa từ ký tự, âm tiết, từ, câu, diễn ngôn đến hành vi mô hình, giúp LLM không chỉ trả lời đúng chữ mà đúng người, đúng vùng, đúng bối cảnh.</p></div>
+          <div class="tile"><span class="k">Data Centric</span><h3>Dữ liệu là tài sản ngôn ngữ</h3><p>Thiết kế corpus, dictionary, benchmark, persona, voice scripts và metadata như tài sản dùng chung có versioning, lineage và audit.</p></div>
+          <div class="tile"><span class="k">Open Standard</span><h3>Chuẩn mở, không khóa hệ sinh thái</h3><p>API First, schema mở, giấy phép CC BY 4.0, khuyến khích lập trình viên fork, remix, mở rộng, đóng góp benchmark và module.</p></div>
+          <div class="tile"><span class="k">Web3 Provenance</span><h3>Truy vết tri thức</h3><p>Băm dữ liệu, model card, dataset card, quyền xuất bản đầu tiên, attribution và phân phối chính thức qua các kênh được chứng thực.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="framework">
+        <div class="section-head"><div><div class="eyebrow">Tag · Khung kiến trúc số VLIC</div><h2>Digital Language Architecture Framework</h2><p class="subtitle">Khung này ánh xạ tinh thần kiến trúc số quốc gia vào lĩnh vực ngôn ngữ: hạ tầng, dữ liệu lõi, ứng dụng dùng chung, kênh tương tác, đo lường hiệu quả, bảo mật, liên thông, API và AI có trách nhiệm.</p></div></div>
+        <div class="arch">
+          <div>
+            <div class="layer"><div class="num">01</div><div><h3>Language Infrastructure & Security</h3><p>Cloud/edge, national data center, secure API gateway, IAM, model registry, privacy filter, language firewall, backup, disaster recovery.</p></div></div>
+            <div class="layer"><div class="num">02</div><div><h3>Data & Core Language Platforms</h3><p>Unicode registry, CVNSS4.0 IR registry, dictionary bank, corpus bank, 54 ethnic language metadata, data lineage, open data catalog.</p></div></div>
+            <div class="layer"><div class="num">03</div><div><h3>Shared NLP/LLM Services</h3><p>Tokenizer, segmenter, NER, spell repair, ASR correction, TTS style control, RAG, translation, summarization, safety moderation.</p></div></div>
+            <div class="layer"><div class="num">04</div><div><h3>Interaction & KPI Layer</h3><p>BilaKey, chatbot, voicebot, document assistant, dashboard, benchmark, satisfaction score, fairness score, latency/cost monitoring.</p></div></div>
+          </div>
+          <div class="card">
+            <h3>Nguyên tắc thiết kế quốc tế</h3>
+            <ul>
+              <li><b>API First:</b> mọi chức năng VLIC có API, SDK và schema.</li>
+              <li><b>Security by Design:</b> bảo mật, phân quyền, audit ngay từ thiết kế.</li>
+              <li><b>Modular Design:</b> module hóa, thay thế được, không phụ thuộc vendor.</li>
+              <li><b>Cloud Native + Edge Ready:</b> chạy cloud, mobile, thiết bị nhúng, bàn phím.</li>
+              <li><b>Data Centric:</b> dữ liệu đúng, đủ, sạch, sống, thống nhất, dùng chung.</li>
+              <li><b>Trustworthy AI:</b> minh bạch, công bằng, giải trình được, giảm ảo giác.</li>
+              <li><b>Open Standard:</b> Unicode, ICU, JSONL, OpenAPI, model card, dataset card.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="core">
+        <div class="section-head"><div><div class="eyebrow">Tag · Kiến trúc lõi</div><h2>11 tầng VLIC Core Architecture</h2><p class="subtitle">Một chuỗi xử lý đầy đủ từ đầu vào đa phương thức đến mô hình, runtime, ứng dụng và vòng phản hồi.</p></div></div>
+        <div class="grid-3">
+          <div class="tile"><span class="k">01</span><h3>Input Plane</h3><p>Keyboard, BilaKey, Voice/ASR, OCR, Chat API, PDF/Word, subtitle, government form, enterprise data.</p></div>
+          <div class="tile"><span class="k">02</span><h3>Ingestion & Normalization</h3><p>Unicode NFC/NFD, noise cleaning, language detection, input mode detection, metadata attachment.</p></div>
+          <div class="tile"><span class="k">03</span><h3>Linguistic Core</h3><p>CVNSS4.0 codec, syllable parser, âm-vần-thanh, dictionary, trie/FST/WFST, spell repair, trace.</p></div>
+          <div class="tile"><span class="k">04</span><h3>Corpus & Knowledge Bank</h3><p>Clean corpus, CVNSS parallel corpus, lexicon, regional terms, persona bank, voice script bank.</p></div>
+          <div class="tile"><span class="k">05</span><h3>Data Factory</h3><p>SFT, DPO, eval, typo repair, no-accent recovery, voice scripts, dubbing scripts, synthetic users.</p></div>
+          <div class="tile"><span class="k">06</span><h3>Alignment Layer</h3><p>Persona, regional, cultural, safety, typing, voice, dubbing, DPO/RLHF/RLAIF alignment.</p></div>
+          <div class="tile"><span class="k">07</span><h3>Evaluation Gate</h3><p>Diacritic accuracy, tone accuracy, segmentation, hallucination, fairness, safety, human review.</p></div>
+          <div class="tile"><span class="k">08</span><h3>Model / Agent Layer</h3><p>Small Vietnamese LLM, RAG agent, ASR correction, TTS controller, IME suggestion model, domain agents.</p></div>
+          <div class="tile"><span class="k">09</span><h3>Runtime / Serving</h3><p>API gateway, router, prompt builder, guardrails, validator, post-processor, cache, monitoring.</p></div>
+          <div class="tile"><span class="k">10</span><h3>Applications</h3><p>BilaKey AI, chatbot, voicebot, AI giáo dục, hành chính công, dubbing, lyric, enterprise assistant.</p></div>
+          <div class="tile"><span class="k">11</span><h3>Feedback Loop</h3><p>User correction, failed cases, new terms, regional expressions, A/B testing, active learning.</p></div>
+          <div class="tile"><span class="k">∞</span><h3>Governance Layer</h3><p>Versioning, schema registry, license, audit, privacy, certification, compliance, open standard.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="cvnss">
+        <div class="section-head"><div><div class="eyebrow">Tag · CVNSS4.0 & BilaKey</div><h2>CVNSS4.0 là IR; BilaKey là cổng nhập liệu chủ quyền</h2><p class="subtitle">Đầu ra pháp lý và giáo dục vẫn là tiếng Việt Unicode chuẩn. CVNSS4.0 đóng vai trò biểu diễn trung gian: ASCII input, trace, gợi ý, kiểm thử, dữ liệu alignment và nhịp cầu giữa người dùng với AI.</p></div></div>
+        <div class="grid-2">
+          <div class="card"><h3>CVNSS4.0 IR Stack</h3><ul><li><b>Raw input:</b> chuỗi người dùng gõ.</li><li><b>IR parse:</b> âm đầu, vần, âm cuối, thanh, luật chuyển.</li><li><b>Unicode output:</b> chuẩn hiển thị và lưu trữ.</li><li><b>Trace:</b> giải thích tại sao chuyển như vậy.</li><li><b>Alignment data:</b> dùng cho SFT/DPO/eval và LLM hiểu input.</li></ul></div>
+          <div class="card"><h3>BilaKey Product Layer</h3><ul><li>IME mobile/desktop/WebAssembly.</li><li>Candidate ranking: trie, n-gram, Markov, FST/WFST.</li><li>Typing repair: Backspace transaction, composing buffer, typo recovery.</li><li>Mode: VI/EN, CVNSS Unicode, CVNSS Raw, future Telex/VNI bridge.</li><li>Open source để cộng đồng tham khảo, fork, nâng cấp.</li></ul></div>
+        </div>
+      </section>
+
+      <section class="section" id="grammar">
+        <div class="section-head"><div><div class="eyebrow">Tag · Ngữ pháp tiếng Việt cho máy hiểu</div><h2>Grammar Intelligence Map: 24 trục xử lý từ chữ đến diễn ngôn</h2><p class="subtitle">Bộ 24 vấn đề cốt lõi mà VLIC phải chuẩn hóa để NLP/LLM tiếng Việt hoạt động bền vững: từ Unicode, dấu thanh, âm tiết, từ, câu, diễn ngôn đến ASR/TTS, tokenization và đạo đức AI.</p></div></div>
+        <div class="tagbar" id="filters">
+          <button class="filter active" data-filter="all">Tất cả</button>
+          <button class="filter" data-filter="orthography">Chữ & chính tả</button>
+          <button class="filter" data-filter="lexical">Từ & ngữ nghĩa</button>
+          <button class="filter" data-filter="syntax">Câu & diễn ngôn</button>
+          <button class="filter" data-filter="ai">LLM/Voice/Ethics</button>
+        </div>
+        <div class="grammar-grid" id="grammarGrid">
+          <div class="gcard" data-cat="orthography"><small>01 · orthography</small><h3>Chuẩn hóa văn bản & Unicode</h3><p>NFC/NFD, tổ hợp/dựng sẵn, ký tự đặc biệt, legacy encoding, canonical equivalence, text normalization.</p></div>
+          <div class="gcard" data-cat="orthography"><small>02 · orthography</small><h3>Đặt dấu thanh & chính tả</h3><p>Vị trí dấu thanh, hòa/hoà, quy tắc cũ/mới, lỗi sai dấu, diacritic placement, spelling validator.</p></div>
+          <div class="gcard" data-cat="orthography"><small>03 · dialect writing</small><h3>Biến đổi ngữ âm vùng miền trong chữ viết</h3><p>Dạng “dzô”, “hông”, “mô tê”, biến thể chat, dialectal orthography và chuẩn hóa hai chiều.</p></div>
+          <div class="gcard" data-cat="orthography"><small>04 · phonology</small><h3>Âm tiết & âm vị học trong giọng nói</h3><p>Phân đoạn âm tiết, nhận dạng thanh điệu, âm cuối, âm đệm, onset/rime/tone, ASR phoneme lattice.</p></div>
+          <div class="gcard" data-cat="lexical"><small>05 · segmentation</small><h3>Phân tách từ</h3><p>Word segmentation, ranh giới từ mơ hồ, từ đơn/từ ghép, downstream impact đến NER, parsing, RAG.</p></div>
+          <div class="gcard" data-cat="lexical"><small>06 · POS</small><h3>Từ loại & gán nhãn POS</h3><p>Từ đa chức năng, “đường” danh/tính, từ hư, functional words, POS ambiguity, sequence labeling.</p></div>
+          <div class="gcard" data-cat="lexical"><small>07 · collocation</small><h3>Từ ghép, từ láy & thành ngữ</h3><p>Collocation, idioms, fixed expressions, “mẹ tròn con vuông”, multiword expressions, lexicon mining.</p></div>
+          <div class="gcard" data-cat="lexical"><small>08 · NER</small><h3>Thực thể định danh & tên riêng</h3><p>Tên người Việt, tên nước ngoài, địa danh, tổ chức, viết tắt, alias resolution, entity linking.</p></div>
+          <div class="gcard" data-cat="syntax"><small>09 · pragmatics</small><h3>Đại từ nhân xưng & vai xã hội</h3><p>Anh/chị/em/tôi/mình/bác/cô, kính ngữ, social deixis, user persona, politeness alignment.</p></div>
+          <div class="gcard" data-cat="syntax"><small>10 · syntax</small><h3>Cấu trúc câu & phân tích cú pháp</h3><p>Câu phức, mệnh đề lồng, khuyết chủ ngữ, đảo ngữ, dependency parsing, constituency hints.</p></div>
+          <div class="gcard" data-cat="lexical"><small>11 · semantics</small><h3>Nhập nhằng ngữ nghĩa từ vựng</h3><p>Đa nghĩa, đồng âm, context disambiguation, word sense induction, lexical semantics.</p></div>
+          <div class="gcard" data-cat="syntax"><small>12 · semantic roles</small><h3>Vai nghĩa & diễn trị động từ</h3><p>Predicate-argument structure, semantic role labeling, “bị/được”, active/passive alternation.</p></div>
+          <div class="gcard" data-cat="syntax"><small>13 · logic</small><h3>Phủ định & câu hỏi</h3><p>Không/chưa/chẳng, polar question, wh-question, câu hỏi đuôi, câu hỏi lựa chọn, scope detection.</p></div>
+          <div class="gcard" data-cat="syntax"><small>14 · discourse</small><h3>Diễn ngôn & liên kết văn bản</h3><p>Liên kết liên câu, từ nối, “tuy nhiên”, “vì vậy”, đồng tham chiếu, discourse relation parsing.</p></div>
+          <div class="gcard" data-cat="syntax"><small>15 · pragmatics</small><h3>Ngữ dụng & hành vi ngôn từ</h3><p>Hàm ý, gián tiếp, lịch sự, mỉa mai, speech act detection, intent classification, sentiment.</p></div>
+          <div class="gcard" data-cat="orthography"><small>16 · dialect</small><h3>Biến thể phương ngữ từ vựng & cú pháp</h3><p>Bắc/Trung/Nam, từ địa phương, cấu trúc “mô tê”, dialect mapping, regional fairness.</p></div>
+          <div class="gcard" data-cat="lexical"><small>17 · code-switch</small><h3>Code-switching Việt-Anh</h3><p>Chêm tiếng Anh, teen code, slang, mixed-language tokenization, bilingual embedding alignment.</p></div>
+          <div class="gcard" data-cat="orthography"><small>18 · correction</small><h3>Sửa lỗi chính tả & ngữ pháp</h3><p>Hỏi/ngã, s/x, ch/tr, r/d/gi, câu què, grammar error correction, typo repair, spell correction.</p></div>
+          <div class="gcard" data-cat="lexical"><small>19 · IE</small><h3>Rút trích thông tin & quan hệ</h3><p>NER mở rộng sang event extraction, relation extraction, cause-effect, temporal extraction, slot filling.</p></div>
+          <div class="gcard" data-cat="ai"><small>20 · LLM</small><h3>LLM & ảo giác</h3><p>Hallucination, factuality, RAG grounding, lack of Vietnamese eval, answer verification, citation discipline.</p></div>
+          <div class="gcard" data-cat="ai"><small>21 · tokenizer</small><h3>Tokenization & giới hạn từ vựng LLM</h3><p>BPE/SentencePiece cắt âm tiết không hợp lý, rare token, token efficiency, CVNSS4.0 as auxiliary IR.</p></div>
+          <div class="gcard" data-cat="ai"><small>22 · ASR</small><h3>ASR tiếng Việt</h3><p>Nhiễu, giọng vùng, overlapping speech, tên riêng, tone recognition, diarization, punctuation restoration.</p></div>
+          <div class="gcard" data-cat="ai"><small>23 · TTS</small><h3>TTS tự nhiên & biểu cảm</h3><p>Thanh điệu, ngữ điệu, ngắt nghỉ, cảm xúc, voice style transfer, prosody control, dubbing.</p></div>
+          <div class="gcard" data-cat="ai"><small>24 · responsible AI</small><h3>Đánh giá & đạo đức AI</h3><p>Benchmark, bias giới tính/miền, safety, privacy, toxicity, transparency, attribution, trustworthy AI.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="llm">
+        <div class="section-head"><div><div class="eyebrow">Tag · LLM Training Comparison</div><h2>Bảng so sánh 11 bước huấn luyện LLM với 11 tầng VLIC</h2><p class="subtitle">VLIC không thay thế pipeline huấn luyện LLM. VLIC cung cấp lớp dữ liệu, chuẩn hóa, alignment, evaluation và runtime để LLM tiếng Việt hoạt động đáng tin cậy hơn.</p></div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>LLM training pipeline</th><th>Tầng tương ứng trong VLIC</th><th>Giống nhau</th><th>Khác biệt chiến lược</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Raw data collection</td><td>Input Plane + Corpus Bank</td><td>Thu thập dữ liệu đa nguồn</td><td>VLIC chú trọng tiếng Việt, input IME/voice/OCR/document và metadata ngôn ngữ.</td></tr>
+              <tr><td>2</td><td>Cleaning & normalization</td><td>Ingestion & Unicode Normalization</td><td>Làm sạch, chuẩn hóa</td><td>VLIC bắt buộc NFC/NFD, dấu thanh, CVNSS4.0, Telex/VNI/no-accent detection.</td></tr>
+              <tr><td>3</td><td>Tokenizer training</td><td>Tokenizer + Syllable Parser</td><td>Biến văn bản thành đơn vị máy học</td><td>VLIC ưu tiên âm tiết, từ ghép, thanh điệu và tokenization phù hợp tiếng Việt.</td></tr>
+              <tr><td>4</td><td>Pre-training</td><td>Vietnamese foundation corpus</td><td>Học ngôn ngữ và tri thức</td><td>VLIC cung cấp corpus sạch, traceable, không chỉ crawl thô.</td></tr>
+              <tr><td>5</td><td>Base model</td><td>Model Layer</td><td>Mô hình nền</td><td>VLIC không phải model, mà là hạ tầng giúp model hiểu tiếng Việt chuẩn.</td></tr>
+              <tr><td>6</td><td>SFT dataset</td><td>Data Factory</td><td>Tạo instruction data</td><td>VLIC sinh SFT từ persona, CVNSS4.0, typing repair, domain corpus.</td></tr>
+              <tr><td>7</td><td>Supervised fine-tuning</td><td>Alignment Layer</td><td>Dạy trả lời theo hướng dẫn</td><td>VLIC thêm regional, cultural, typing, voice, dubbing alignment.</td></tr>
+              <tr><td>8</td><td>DPO/RLHF/RLAIF</td><td>Preference Alignment</td><td>Chọn phản hồi tốt hơn</td><td>VLIC đánh giá theo người Việt, vùng miền, đại từ, lịch sự, an toàn.</td></tr>
+              <tr><td>9</td><td>Evaluation</td><td>Evaluation Gate</td><td>Benchmark và kiểm thử</td><td>VLIC có benchmark dấu, thanh, CVNSS decode, ASR/TTS, hallucination tiếng Việt.</td></tr>
+              <tr><td>10</td><td>Deployment</td><td>Runtime / Serving</td><td>Phục vụ mô hình</td><td>VLIC thêm guardrails, post-processor, Unicode validator, trace logger.</td></tr>
+              <tr><td>11</td><td>Feedback & iteration</td><td>Feedback Loop</td><td>Cải tiến liên tục</td><td>VLIC học từ lỗi gõ, lỗi vùng miền, tên riêng mới, corpus mới và human review.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section" id="ethnic">
+        <div class="section-head"><div><div class="eyebrow">Tag · 54 dân tộc & ngôn ngữ số</div><h2>Khung mở rộng cho ngôn ngữ dân tộc</h2><p class="subtitle">VLIC đặt tiếng Việt chuẩn làm trục trung tâm, CVNSS4.0 làm IR hỗ trợ tiếng Việt, đồng thời mở kiến trúc dữ liệu cho các ngôn ngữ dân tộc: chữ viết, âm vị, từ điển, ASR/TTS, giáo dục, dịch thuật và bảo tồn văn hóa.</p></div></div>
+        <div class="grid-3">
+          <div class="tile"><span class="k">Corpus</span><h3>Kho ngữ liệu dân tộc</h3><p>Thu thập văn bản, truyện kể, bài hát, nghi lễ, từ điển song ngữ, metadata vùng và cộng đồng.</p></div>
+          <div class="tile"><span class="k">Script</span><h3>Chuẩn chữ viết & mã hóa</h3><p>Unicode coverage, font, keyboard layout, transliteration, orthography registry, glyph variation.</p></div>
+          <div class="tile"><span class="k">Voice</span><h3>ASR/TTS bảo tồn tiếng nói</h3><p>Thu âm có đồng thuận, mô hình giọng nói, phoneme inventory, tone/prosody, voice corpus.</p></div>
+          <div class="tile"><span class="k">Education</span><h3>Học liệu số song ngữ</h3><p>Ứng dụng học tiếng mẹ đẻ, sách nói, trợ lý giáo dục, kiểm tra phát âm.</p></div>
+          <div class="tile"><span class="k">Governance</span><h3>Quyền cộng đồng</h3><p>Consent, attribution, indigenous data sovereignty, cấp phép phù hợp, không khai thác văn hóa sai lệch.</p></div>
+          <div class="tile"><span class="k">Bridge</span><h3>Tiếng Việt chuẩn làm cầu nối</h3><p>Dịch dân tộc ↔ tiếng Việt chuẩn ↔ tiếng Anh, RAG địa phương, dịch vụ công đa ngôn ngữ.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="apps">
+        <div class="section-head"><div><div class="eyebrow">Tag · Ứng dụng chiến lược</div><h2>VLIC cho 10 nhóm công nghệ chiến lược</h2><p class="subtitle">Hạ tầng ngôn ngữ là lớp giao tiếp của mọi công nghệ: AI, IoT, blockchain, robot, y sinh, chip, an ninh mạng, biển, vũ trụ, đường sắt. Không có lớp ngôn ngữ chuẩn, dữ liệu chiến lược sẽ khó khai thác, khó giải thích và khó phục vụ người dân.</p></div></div>
+        <div class="grid-4">
+          <div class="tile"><span class="k">1</span><h3>Công nghệ số</h3><p>AI, big data, digital twin, cloud, edge, IoT, blockchain, RAG, language API.</p></div>
+          <div class="tile"><span class="k">2</span><h3>Mạng thế hệ sau</h3><p>Voice assistant, edge ASR/TTS, command interface cho 5G/6G, dịch vụ công di động.</p></div>
+          <div class="tile"><span class="k">3</span><h3>Robot & tự động hóa</h3><p>Điều khiển bằng tiếng Việt, lệnh giọng nói, grounding, task planning, dialog safety.</p></div>
+          <div class="tile"><span class="k">4</span><h3>Y sinh tiên tiến</h3><p>Medical NLP, tư vấn sức khỏe an toàn, thuật ngữ y khoa, clinical note normalization.</p></div>
+          <div class="tile"><span class="k">5</span><h3>Năng lượng & vật liệu</h3><p>Trợ lý kỹ thuật, mining literature, tiêu chuẩn hóa báo cáo, tri thức ngành.</p></div>
+          <div class="tile"><span class="k">6</span><h3>Chip bán dẫn</h3><p>Edge Vietnamese AI, IME on-device, NPU optimization, tokenizer-efficient models.</p></div>
+          <div class="tile"><span class="k">7</span><h3>An ninh mạng & lượng tử</h3><p>Phishing Vietnamese detection, log NLP, threat intel, cryptographic provenance.</p></div>
+          <div class="tile"><span class="k">8</span><h3>Biển, đại dương, lòng đất</h3><p>GIS/NLP, báo cáo quan trắc, cảnh báo thiên tai đa ngôn ngữ, miền dữ liệu chuyên ngành.</p></div>
+          <div class="tile"><span class="k">9</span><h3>Hàng không & vũ trụ</h3><p>Voice command, tài liệu kỹ thuật, mission logs, anomaly explanation.</p></div>
+          <div class="tile"><span class="k">10</span><h3>Đường sắt tốc độ cao</h3><p>Thông báo đa giọng, trợ lý hành khách, bảo trì dự đoán, ticketing chatbot.</p></div>
+          <div class="tile"><span class="k">Public</span><h3>Dịch vụ công</h3><p>VNeID, cổng dịch vụ công, chatbot hành chính, hỗ trợ tiếng dân tộc, accessibility.</p></div>
+          <div class="tile"><span class="k">Media</span><h3>Văn hóa & sáng tạo</h3><p>Lồng tiếng, phim, nhạc, game, lyric, kịch bản, giọng đọc, di sản Hán Nôm.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="web3">
+        <div class="section-head"><div><div class="eyebrow">Tag · Web3 Provenance</div><h2>Ngôn ngữ số có nguồn gốc, quyền và dấu vết</h2><p class="subtitle">Web3 trong VLIC không phải đầu cơ. Nó là cơ chế xác thực nguồn dữ liệu, giấy phép, tác giả, version, model card, dataset card và quyền phân phối chính thức.</p></div></div>
+        <div class="grid-3">
+          <div class="tile"><span class="k">Proof of Language</span><h3>Băm corpus & dictionary</h3><p>Mỗi phiên bản corpus, luật CVNSS4.0, từ điển, benchmark được hash để kiểm chứng không bị sửa âm thầm.</p></div>
+          <div class="tile"><span class="k">DID</span><h3>Định danh tác giả & nguồn</h3><p>Ghi nhận Long Ngo, Bilacore, cộng đồng đóng góp, tạp chí/kênh chính thức và attribution theo CC BY 4.0.</p></div>
+          <div class="tile"><span class="k">License Ledger</span><h3>Sổ cái giấy phép</h3><p>Theo dõi CC BY 4.0, First publication rights, bản sửa đổi, bản dẫn xuất và kênh phân phối chính thức.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="roadmap">
+        <div class="section-head"><div><div class="eyebrow">Tag · Roadmap 2026–2050</div><h2>Từ mã nguồn mở đến hạ tầng IPO-ready năm 2050</h2><p class="subtitle">VLIC là dự án phi lợi nhuận và mã nguồn mở. “IPO 2050” được trình bày như mốc <b>IPO-ready governance / public infrastructure offering</b>: chuẩn minh bạch, kiểm toán, cộng đồng, tác động xã hội và khả năng hình thành spin-off thương mại tương thích mã nguồn mở.</p></div></div>
+        <div class="roadmap">
+          <div class="milestone"><span class="year">2026</span><div class="box"><h3>Foundation Release</h3><p>Công bố website, manifesto, VLIC Core v0.1, CVNSS4.0 IR API, BilaKey prototype, bộ 24 trục ngữ pháp máy hiểu.</p></div></div>
+          <div class="milestone"><span class="year">2027–2030</span><div class="box"><h3>National Digital Language Framework</h3><p>Xây corpus, dictionary, benchmark, dataset card, model card; tích hợp ASR/TTS/OCR/RAG và mở rộng ngôn ngữ dân tộc.</p></div></div>
+          <div class="milestone"><span class="year">2031–2035</span><div class="box"><h3>Vietnamese AI Infrastructure Layer</h3><p>VLIC API trở thành lớp dùng chung cho giáo dục, dịch vụ công, doanh nghiệp, thiết bị edge, voicebot và trợ lý vùng miền.</p></div></div>
+          <div class="milestone"><span class="year">2036–2045</span><div class="box"><h3>Open Protocol & Web3 Provenance</h3><p>Chuẩn hóa provenance, license ledger, language DAO, community governance, public audit và international interoperability.</p></div></div>
+          <div class="milestone"><span class="year">2050</span><div class="box"><h3>IPO-ready / Public Infrastructure Offering</h3><p>Đạt chuẩn minh bạch tài sản số, governance, tác động xã hội, có thể niêm yết hệ sinh thái spin-off hoặc phát hành mô hình quỹ mở bền vững mà vẫn giữ VLIC Core phi lợi nhuận.</p></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="opensource">
+        <div class="section-head"><div><div class="eyebrow">Tag · Open Source & Publishing Rights</div><h2>Mã nguồn mở, phi lợi nhuận, CC BY 4.0</h2><p class="subtitle">Dự án được xây dựng để làm cảm hứng cho lập trình viên phát triển, nâng cấp, tham khảo và tạo bản dẫn xuất. VLIC khuyến khích chia sẻ tri thức, nhưng yêu cầu ghi công minh bạch.</p></div></div>
+        <div class="grid-2">
+          <div class="card"><h3>Giấy phép nội dung</h3><p><b>Creative Commons Attribution 4.0 International (CC BY 4.0).</b></p><ul><li><b>Share:</b> sao chép và phân phối qua mọi định dạng/phương tiện.</li><li><b>Adapt:</b> sửa, biến đổi, sáng tạo trên nền tác phẩm cho mọi mục đích, kể cả thương mại.</li><li><b>Attribution:</b> phải ghi tên tác giả, link tới giấy phép, đánh dấu nếu đã sửa đổi.</li><li><b>Không hạn chế bổ sung:</b> không áp dụng biện pháp pháp lý/kỹ thuật cản trở quyền sử dụng theo giấy phép.</li></ul></div>
+          <div class="card"><h3>Quyền xuất bản & phân phối</h3><ul><li><b>First publication rights:</b> quyền công bố đầu tiên qua kênh chính thức.</li><li><b>Quyền lưu trữ:</b> lưu trữ trong kho dự án, tạp chí, website, GitHub, IPFS hoặc kênh chính thức.</li><li><b>Quyền phân phối:</b> phân phối lại qua kênh chính thức của dự án/tạp chí/cộng đồng.</li><li><b>Ghi công đề xuất:</b> Long Ngo, Bilacore Team, BilaKey.com, VLIC 2050 Project.</li></ul></div>
+        </div>
+      </section>
+
+      <section class="section" id="resources">
+        <div class="section-head"><div><div class="eyebrow">Tag · Research Resources & Reference Links</div><h2>Tài nguyên tham khảo cho VLIC, CVNSS4.0, BilaKey và NLP/LLM tiếng Việt</h2><p class="subtitle">Kho tham chiếu này gom các chuẩn quốc tế, bộ dữ liệu, thư viện, benchmark, mô hình và tài nguyên xuất bản để VLIC không phát triển cô lập, mà đứng trên nền tảng học thuật toàn cầu. Các mục được tổ chức theo đúng pipeline: chuẩn hóa ký tự → ngữ pháp tính toán → corpus → mô hình → đánh giá → ASR/TTS/OCR → Web3 provenance.</p></div></div>
+
+        <div class="resource-note"><b>Nguyên tắc sử dụng tài nguyên:</b> ưu tiên nguồn chính thức, giấy phép rõ ràng, khả năng trích dẫn học thuật, tương thích API mở, có thể tái lập thực nghiệm. VLIC sẽ dùng các tài nguyên này để xây dựng kho dữ liệu tiếng Việt, bộ kiểm thử, module NLP, alignment dataset, benchmark và tài liệu đào tạo mở.</div>
+
+        <div class="resource-grid">
+          <div class="resource-card"><h3>1. Chuẩn mã hóa & quốc tế hóa</h3><p>Nền tảng cho Unicode NFC/NFD, đa ngôn ngữ, font, locale, phân loại script và chuẩn dữ liệu.</p><div class="resource-links">
+            <a href="https://www.unicode.org/standard/standard.html" target="_blank" rel="noopener"><span>Unicode Standard</span><span>unicode.org</span></a>
+            <a href="https://www.unicode.org/reports/tr15/" target="_blank" rel="noopener"><span>Unicode Normalization UAX #15</span><span>NFC/NFD</span></a>
+            <a href="https://icu.unicode.org/" target="_blank" rel="noopener"><span>ICU – International Components for Unicode</span><span>i18n</span></a>
+            <a href="https://cldr.unicode.org/" target="_blank" rel="noopener"><span>Unicode CLDR</span><span>locale</span></a>
+            <a href="https://www.w3.org/International/" target="_blank" rel="noopener"><span>W3C Internationalization</span><span>web i18n</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>2. Ngữ pháp tính toán & treebank</h3><p>Tài nguyên để chuẩn hóa phân tích cú pháp, POS, dependency parsing và annotation liên ngôn ngữ.</p><div class="resource-links">
+            <a href="https://universaldependencies.org/" target="_blank" rel="noopener"><span>Universal Dependencies</span><span>UD</span></a>
+            <a href="https://catalog.ldc.upenn.edu/LDC99T42" target="_blank" rel="noopener"><span>Penn Treebank</span><span>PTB</span></a>
+            <a href="https://propbank.github.io/" target="_blank" rel="noopener"><span>PropBank</span><span>semantic roles</span></a>
+            <a href="https://framenet.icsi.berkeley.edu/" target="_blank" rel="noopener"><span>FrameNet</span><span>frame semantics</span></a>
+            <a href="https://wordnet.princeton.edu/" target="_blank" rel="noopener"><span>WordNet</span><span>lexical semantics</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>3. Từ điển, vai nghĩa & đồ thị tri thức</h3><p>Tham chiếu cho VLIC Dictionary Bank, role labeling, nghĩa khung, commonsense và ontology.</p><div class="resource-links">
+            <a href="https://verbs.colorado.edu/verbnet/" target="_blank" rel="noopener"><span>VerbNet</span><span>verb classes</span></a>
+            <a href="https://verbs.colorado.edu/semlink/" target="_blank" rel="noopener"><span>SemLink</span><span>mapping</span></a>
+            <a href="https://conceptnet.io/" target="_blank" rel="noopener"><span>ConceptNet</span><span>commonsense</span></a>
+            <a href="https://babelnet.org/" target="_blank" rel="noopener"><span>BabelNet</span><span>semantic net</span></a>
+            <a href="https://spacy.io/universe/project/framester" target="_blank" rel="noopener"><span>Framester</span><span>frame graph</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>4. Corpus & mô hình ngôn ngữ</h3><p>Các kho ngữ liệu nền cho language modeling, pretraining, continual learning và corpus governance.</p><div class="resource-links">
+            <a href="https://huggingface.co/datasets" target="_blank" rel="noopener"><span>Hugging Face Datasets</span><span>hub</span></a>
+            <a href="https://blog.eleuther.ai/the-pile/" target="_blank" rel="noopener"><span>The Pile</span><span>LM corpus</span></a>
+            <a href="https://commoncrawl.org/" target="_blank" rel="noopener"><span>Common Crawl</span><span>web corpus</span></a>
+            <a href="https://opus.nlpl.eu/" target="_blank" rel="noopener"><span>OPUS Corpus</span><span>parallel</span></a>
+            <a href="https://paperswithcode.com/dataset/wikitext-103" target="_blank" rel="noopener"><span>WikiText-103</span><span>LM benchmark</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>5. Dịch máy & corpus song song</h3><p>Nền cho xây dựng dữ liệu Việt–Anh, Việt–ngôn ngữ dân tộc, MT, alignment và back-translation.</p><div class="resource-links">
+            <a href="https://www.statmt.org/europarl/" target="_blank" rel="noopener"><span>Europarl Parallel Corpus</span><span>MT</span></a>
+            <a href="https://conferences.unite.un.org/uncorpus" target="_blank" rel="noopener"><span>UN Parallel Corpus</span><span>UN</span></a>
+            <a href="https://www.statmt.org/wmt23/" target="_blank" rel="noopener"><span>WMT Shared Tasks</span><span>MT eval</span></a>
+            <a href="https://github.com/facebookresearch/flores" target="_blank" rel="noopener"><span>FLORES Evaluation</span><span>many languages</span></a>
+            <a href="https://opus.nlpl.eu/" target="_blank" rel="noopener"><span>OPUS Open Parallel Corpus</span><span>parallel</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>6. NLI, QA, đọc hiểu & suy luận</h3><p>Tài nguyên cho benchmark hiểu nghĩa, hỏi đáp, suy luận ngôn ngữ tự nhiên và factuality.</p><div class="resource-links">
+            <a href="https://rajpurkar.github.io/SQuAD-explorer/" target="_blank" rel="noopener"><span>SQuAD</span><span>QA</span></a>
+            <a href="https://cims.nyu.edu/~sbowman/xnli/" target="_blank" rel="noopener"><span>XNLI</span><span>cross-lingual</span></a>
+            <a href="https://cims.nyu.edu/~sbowman/multinli/" target="_blank" rel="noopener"><span>MultiNLI</span><span>NLI</span></a>
+            <a href="https://github.com/google-research-datasets/tydiqa" target="_blank" rel="noopener"><span>TyDi QA</span><span>typological QA</span></a>
+            <a href="https://hotpotqa.github.io/" target="_blank" rel="noopener"><span>HotpotQA</span><span>multi-hop</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>7. Trích xuất thông tin, NER & sự kiện</h3><p>Nền cho VLIC IE: entity, relation, event, temporal/causal reasoning và open information extraction.</p><div class="resource-links">
+            <a href="https://www.clips.uantwerpen.be/conll2003/ner/" target="_blank" rel="noopener"><span>CoNLL-2003 NER</span><span>NER</span></a>
+            <a href="https://nlp.stanford.edu/projects/tacred/" target="_blank" rel="noopener"><span>TACRED</span><span>relation</span></a>
+            <a href="https://catalog.ldc.upenn.edu/LDC2006T06" target="_blank" rel="noopener"><span>ACE 2005</span><span>event/IE</span></a>
+            <a href="https://github.com/thunlp/FewRel" target="_blank" rel="noopener"><span>FewRel</span><span>few-shot RE</span></a>
+            <a href="https://github.com/dair-iitd/OpenIE-standalone" target="_blank" rel="noopener"><span>OpenIE</span><span>open extraction</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>8. Cảm xúc, phân loại & social NLP</h3><p>Tham chiếu cho sentiment, emotion, aspect-based sentiment, topic classification, moderation.</p><div class="resource-links">
+            <a href="https://www.cs.cornell.edu/people/pabo/movie-review-data/" target="_blank" rel="noopener"><span>Sentiment Polarity Dataset</span><span>sentiment</span></a>
+            <a href="https://nlp.stanford.edu/sentiment/" target="_blank" rel="noopener"><span>Stanford Sentiment Treebank</span><span>SST</span></a>
+            <a href="https://mpqa.cs.pitt.edu/" target="_blank" rel="noopener"><span>MPQA Opinion Corpus</span><span>opinion</span></a>
+            <a href="https://github.com/aesuli/SentiWordNet" target="_blank" rel="noopener"><span>SentiWordNet</span><span>lexicon</span></a>
+            <a href="https://groups.di.unipi.it/~gulli/AG_corpus_of_news_articles.html" target="_blank" rel="noopener"><span>AG News Corpus</span><span>classification</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>9. Embedding, Transformer & LLM tools</h3><p>Công cụ cho biểu diễn từ, sentence embeddings, fine-tuning, evaluation và alignment.</p><div class="resource-links">
+            <a href="https://fasttext.cc/docs/en/crawl-vectors.html" target="_blank" rel="noopener"><span>fastText Vectors</span><span>294 languages</span></a>
+            <a href="https://nlp.stanford.edu/projects/glove/" target="_blank" rel="noopener"><span>GloVe</span><span>embeddings</span></a>
+            <a href="https://github.com/bheinzerling/bpemb" target="_blank" rel="noopener"><span>BPEmb</span><span>BPE vectors</span></a>
+            <a href="https://github.com/huggingface/peft" target="_blank" rel="noopener"><span>PEFT</span><span>LoRA/QLoRA</span></a>
+            <a href="https://github.com/huggingface/trl" target="_blank" rel="noopener"><span>TRL</span><span>SFT/DPO/RLHF</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>10. Tài nguyên tiếng Việt</h3><p>Các thư viện và mô hình nền tảng để VLIC đối chiếu, tích hợp, benchmark và mở rộng.</p><div class="resource-links">
+            <a href="https://github.com/vncorenlp/VnCoreNLP" target="_blank" rel="noopener"><span>VnCoreNLP</span><span>Vietnamese NLP</span></a>
+            <a href="https://github.com/undertheseanlp/underthesea" target="_blank" rel="noopener"><span>Underthesea</span><span>toolkit</span></a>
+            <a href="https://github.com/VinAIResearch/PhoBERT" target="_blank" rel="noopener"><span>PhoBERT</span><span>Vietnamese BERT</span></a>
+            <a href="https://github.com/datquocnguyen/RDRsegmenter" target="_blank" rel="noopener"><span>RDRSegmenter</span><span>word segmenter</span></a>
+            <a href="https://huggingface.co/datasets/nvidia/Nemotron-Personas-Vietnam" target="_blank" rel="noopener"><span>Nemotron-Personas-Vietnam</span><span>persona dataset</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>11. ASR, TTS, OCR & multimodal</h3><p>Phục vụ hạ tầng voice tiếng Việt, lồng tiếng, OCR văn bản, dữ liệu giọng nói và kiểm thử đa phương thức.</p><div class="resource-links">
+            <a href="https://commonvoice.mozilla.org/" target="_blank" rel="noopener"><span>Mozilla Common Voice</span><span>speech data</span></a>
+            <a href="https://github.com/google-research-datasets/fleurs" target="_blank" rel="noopener"><span>FLEURS</span><span>speech benchmark</span></a>
+            <a href="https://github.com/openai/whisper" target="_blank" rel="noopener"><span>Whisper</span><span>ASR</span></a>
+            <a href="https://github.com/espnet/espnet" target="_blank" rel="noopener"><span>ESPnet</span><span>ASR/TTS</span></a>
+            <a href="https://github.com/tesseract-ocr/tesseract" target="_blank" rel="noopener"><span>Tesseract OCR</span><span>OCR</span></a>
+          </div></div>
+
+          <div class="resource-card"><h3>12. Khoa học, xuất bản & Web3 provenance</h3><p>Tài nguyên cho công bố mở, DOI, bản quyền, provenance, lưu trữ phi tập trung và license compliance.</p><div class="resource-links">
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener"><span>Creative Commons BY 4.0</span><span>license</span></a>
+            <a href="https://spdx.dev/" target="_blank" rel="noopener"><span>SPDX</span><span>license IDs</span></a>
+            <a href="https://www.w3.org/TR/prov-overview/" target="_blank" rel="noopener"><span>W3C PROV</span><span>provenance</span></a>
+            <a href="https://ipfs.tech/" target="_blank" rel="noopener"><span>IPFS</span><span>decentralized web</span></a>
+            <a href="https://zenodo.org/" target="_blank" rel="noopener"><span>Zenodo</span><span>DOI archive</span></a>
+          </div></div>
+        </div>
+
+        <div class="section-head" style="margin-top:36px"><div><div class="eyebrow">Resource-to-VLIC Mapping</div><h2>Ma trận gắn tài nguyên vào kiến trúc VLIC</h2><p class="subtitle">Tài nguyên không chỉ để tham khảo; mỗi nhóm phải được ánh xạ vào một module, một loại dữ liệu và một thước đo triển khai.</p></div></div>
+        <div class="resource-matrix">
+          <div class="head">Nhóm tài nguyên</div><div class="head">Module VLIC tương ứng</div><div class="head">Đầu ra cần xây dựng</div>
+          <div>Unicode, ICU, CLDR, W3C i18n</div><div>VLIC Normalize · Unicode Guard · Locale Registry</div><div>Bộ test NFC/NFD, chuẩn ký tự đặc biệt, font/locale cho 54 dân tộc.</div>
+          <div>UD, PTB, PropBank, FrameNet, WordNet</div><div>VLIC Grammar · Parser · Semantic Role Layer</div><div>Vietnamese Treebank, POS/NER/SRL schema, 24 mục ngữ pháp máy hiểu.</div>
+          <div>OPUS, UNCorpus, WMT, FLORES</div><div>VLIC MT · Parallel Corpus · Back-translation</div><div>Corpus Việt–Anh, Việt–dân tộc, benchmark dịch máy và alignment ngôn ngữ.</div>
+          <div>CoNLL, TACRED, ACE, FewRel</div><div>VLIC IE · NER · Relation · Event Extractor</div><div>Benchmark thực thể, quan hệ, sự kiện, nguyên nhân, thời gian cho tiếng Việt.</div>
+          <div>VnCoreNLP, Underthesea, PhoBERT, Nemotron-Personas-Vietnam</div><div>VLIC Vietnamese NLP · Persona Alignment</div><div>Bộ so sánh baseline, dataset SFT/DPO, persona-grounded assistant, regional fairness eval.</div>
+          <div>Common Voice, FLEURS, Whisper, ESPnet, Tesseract</div><div>VLIC Voice/OCR · ASR/TTS · Dubbing Layer</div><div>Voice scripts, ASR correction, TTS style, OCR normalization và đánh giá giọng vùng.</div>
+          <div>CC BY 4.0, SPDX, W3C PROV, IPFS, Zenodo</div><div>VLIC Governance · Web3 Provenance · Open Science</div><div>DOI, license metadata, provenance log, publication package và IPFS archive.</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" id="contact">
+      <div class="container footer-grid">
+        <div class="contact-card">
+          <h3>Liên hệ triển khai</h3>
+          <p><b>Long Ngo</b> – Trưởng team Bilacore, Kỹ sư trưởng và Founder BilaKey.com</p>
+          <p>Email: <a href="mailto:chuvnsongsong@gmail.com">chuvnsongsong@gmail.com</a></p>
+          <p>Vai trò: kiến trúc sư hạ tầng VLIC, người theo đuổi đam mê sáng tạo với tiếng Việt, CVNSS4.0 và bộ gõ BilaKey.</p>
+        </div>
+        <div class="contact-card">
+          <h3>Tuyên ngôn cuối</h3>
+          <p>VLIC 2050 đặt tiếng Việt vào vị trí một hạ tầng số có chủ quyền: đẹp như văn hóa phương Đông, minh bạch như chuẩn mở, bền vững như ngôn ngữ dân tộc và đủ sâu để phục vụ AI, Web3, giáo dục, hành chính, sáng tạo và 54 dân tộc anh em.</p>
+          <p class="license">© VLIC 2050 / Bilacore / BilaKey.com. Nội dung cấp phép CC BY 4.0. Dự án phi lợi nhuận, mã nguồn mở, khuyến khích mọi lập trình viên tham khảo, fork, đóng góp và phát triển bản dẫn xuất có ghi công.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+<div class="floating"><button class="floatbtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button><button class="floatbtn" onclick="window.print()">⎙</button></div>
+<script>
+const search=document.getElementById('search');
+search.addEventListener('input',()=>{
+  const q=search.value.trim().toLowerCase();
+  document.querySelectorAll('.tile,.gcard,.card,.layer,.resource-card').forEach(el=>{
+    el.style.display=el.innerText.toLowerCase().includes(q)||!q?'':'none';
+  });
+});
+const filters=document.querySelectorAll('.filter');
+filters.forEach(btn=>btn.addEventListener('click',()=>{
+  filters.forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  const f=btn.dataset.filter;
+  document.querySelectorAll('.gcard').forEach(card=>{card.style.display=(f==='all'||card.dataset.cat===f)?'':'none'});
+}));
+const sections=[...document.querySelectorAll('section[id], footer[id]')];
+const navLinks=[...document.querySelectorAll('.nav a')];
+function onScroll(){
+  let current='home';
+  for(const sec of sections){ if(sec.getBoundingClientRect().top<160) current=sec.id; }
+  navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+current));
+}
+document.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+</script>
+</body>
+</html>
